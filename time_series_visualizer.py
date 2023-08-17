@@ -27,13 +27,41 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
-    df_bar = None
+    df_bar = df.copy()
+    df_bar = df_bar.resample('M').mean()
+    
+    # Extract years and months for labeling
+    df_bar['year'] = df_bar.index.year
+    df_bar['month'] = df_bar.index.month_name()
 
-    # Draw bar plot
+    # Add missing data
+    missing_data = {
+        "year": [2016, 2016, 2016, 2016],
+        "month": ['January', 'February', 'March', 'April'],
+        "value": [0, 0, 0, 0]
+    }
+    df_bar = pd.concat([pd.DataFrame(missing_data), df_bar])
 
+    # Create the bar plot
+    g = sns.catplot(data=df_bar,
+                    x='year',
+                    y='value',
+                    hue='month',
+                    kind='bar',
+                    height=6,
+                    aspect=1.5,
+                    legend_out=False,
+                    palette=sns.color_palette()
+                    )
 
-
-
+    # Set labels and title
+    g.set_axis_labels("Years", "Average Page Views")
+    g.ax.legend(title="Months", loc='upper left')
+    g.ax.spines['right'].set_visible(True)
+    g.ax.spines['top'].set_visible(True)
+    
+    # Get the figure for the output
+    fig = g.fig
 
     # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
